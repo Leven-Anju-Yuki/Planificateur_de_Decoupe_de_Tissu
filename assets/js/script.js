@@ -1,9 +1,10 @@
 let tissuDiv;
 let shapes = [];
 let selectedElement = null;
+let dimensionsPrecedentes = { largeur: null, hauteur: null };
 
 // Quelques jolies couleurs pastel pour nos formes
-const couleursPastel = ["#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", "CDC1FF"];
+const couleursPastel = ["#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", "#CDC1FF"];
 
 // Constante pour convertir des centimètres en pixels (1 cm = 4 px ici)
 let CM_TO_PX = window.innerWidth < 768 ? 2 : 4; // 2px/cm sur mobile, 4px/cm sur ordi
@@ -11,9 +12,22 @@ let CM_TO_PX = window.innerWidth < 768 ? 2 : 4; // 2px/cm sur mobile, 4px/cm sur
 // 🧵 Création du tissu
 function createTissu() {
     // On récupère les dimensions saisies par l'utilisateur
+    const nom = document.getElementById("nom-tissu").value;
     const width = parseFloat(document.getElementById("largeur").value);
     const height = parseFloat(document.getElementById("hauteur").value);
-
+//permet d'alerter si il y a pas de nom renseigner 
+if (!nom.trim()) {
+        alert("Veuillez entrer un nom pour le tissu.");
+        return;
+    }
+    // faire que si rien na changer ne pas mettre à jour automatiquement à jour le site
+    if (
+        dimensionsPrecedentes.largeur === width &&
+        dimensionsPrecedentes.hauteur === height
+    ) {
+        alert("Les dimensions n'ont pas changé. Le tissu n'a pas été recréé.");
+        return;
+    }dimensionsPrecedentes = { largeur: width, hauteur: height };
     // On sélectionne le div "tissu" et on le vide
     tissuDiv = document.getElementById("tissu");
     tissuDiv.innerHTML = "";
@@ -28,6 +42,11 @@ function createTissu() {
 }
 // ➕ Ajout d’une nouvelle forme sur le tissu
 function ajouterForme() {
+    //rajouter que l'on doit absolument créer le tissu pour avoir les pièces
+     if (!tissuDiv || tissuDiv.style.width === "" || tissuDiv.style.height === "") {
+    alert("Veuillez d'abord créer le tissu avant d'ajouter des formes !");
+    return;
+}
     const forme = document.getElementById("forme").value;
     const l = parseFloat(document.getElementById("formLargeur").value) * CM_TO_PX;
     const h = parseFloat(document.getElementById("formHauteur").value) * CM_TO_PX;
@@ -73,8 +92,79 @@ function ajouterForme() {
     // On vérifie si elle dépasse du tissu
     verifierDepassement(elem);
     shapes.push(elem);
+    calculerTissuPerdu();
+    if (document.getElementById("autoTissu").checked) {
+        ajusterTissuAuto();
+    }
 }
+//fonction pour calculer automatiquement le tissu perdu 
+function calculerTissuPerdu() {
+    const tissu = document.getElementById("tissu");
+    const largeurTissu = tissu.offsetWidth;
+    const hauteurTissu = tissu.offsetHeight;
 
+    // Création de la grille : 1 case = 1 pixel
+    let grille = Array.from({ length: hauteurTissu }, () => Array(largeurTissu).fill(0));
+
+    // Pour chaque forme
+    formes.forEach(forme => {
+        const rect = forme.element.getBoundingClientRect();
+        const tissuRect = tissu.getBoundingClientRect();
+        
+        // Position de la forme par rapport au tissu
+        const x = Math.round(rect.left - tissuRect.left);
+        const y = Math.round(rect.top - tissuRect.top);
+        const w = Math.round(rect.width);
+        const h = Math.round(rect.height);
+
+        for (let i = y; i < y + h; i++) {
+            for (let j = x; j < j + w; j++) {
+                if (i >= 0 && i < hauteurTissu && j >= 0 && j < largeurTissu) {
+                    grille[i][j] = 1; // occupé
+                }
+            }
+        }
+    });
+
+    // Compte les cases vides
+    let tissuPerdu = 0;
+    for (let i = 0; i < hauteurTissu; i++) {
+        for (let j = 0; j < largeurTissu; j++) {
+            if (grille[i][j] === 0) tissuPerdu++;
+        }
+    }
+
+    // Affichage
+    document.getElementById("perte").innerText = `${tissuPerdu} cm²`;
+}
+// fonction pour que les tissu se mette les un sous les autre
+function empilerSousLesAutres(elem) {
+    let yOffset = 0;
+    shapes.forEach((el) => {
+        yOffset += el.offsetHeight + 5; // 5px d'espacement
+    });
+
+    elem.style.top = yOffset + "px";
+    elem.style.left = "0px";
+}
+// fonction pour que le tissu s'adapte au différente pièce
+function ajusterTissuAuto() {
+    let maxRight = 0;
+    let maxBottom = 0;
+
+    shapes.forEach((el) => {
+        const right = el.offsetLeft + el.offsetWidth;
+        const bottom = el.offsetTop + el.offsetHeight;
+        if (right > maxRight) maxRight = right;
+        if (bottom > maxBottom) maxBottom = bottom;
+    });
+
+    tissuDiv.style.width = maxRight + "px";
+    tissuDiv.style.height = maxBottom + "px";
+
+    document.getElementById("largeur").value = (maxRight / CM_TO_PX).toFixed(2);
+    document.getElementById("hauteur").value = (maxBottom / CM_TO_PX).toFixed(2);
+}
 function updateShapeList() {
     const list = document.getElementById("shapeList");
     list.innerHTML = "";
@@ -217,10 +307,15 @@ function verifierDepassement(el) {
 function exporterImage() {
     html2canvas(tissuDiv).then((canvas) => {
         const link = document.createElement("a");
-        link.download = "decoupe-tissu.png";
-        link.href = canvas.toDataURL();
-        link.click();
-    });
+    if (!tissuDiv || tissuDiv.style.width === "" || tissuDiv.style.height === "") {
+        alert("Veuillez d'abord créer le tissu avant d'ajouter des formes !");
+        return;
+    }   
+    const nomTissu = document.getElementById("nom-tissu").value.trim() || "decoupe-tissu";
+link.download = `${nomTissu}.png`;     
+    link.href = canvas.toDataURL();
+            link.click();
+        });
 }
 // 💾 Export des données en JSON (pour sauvegarder)
 function exporterJSON() {
@@ -240,8 +335,8 @@ function exporterJSON() {
     const blob = new Blob([JSON.stringify(formes, null, 2)], { type: "application/json" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "decoupe-tissu.json";
-    link.click();
+const nomTissu = document.getElementById("nom-tissu").value.trim() || "decoupe-tissu";
+link.download = `${nomTissu}.json`;    link.click();
 }
 // // 📥 Import des données depuis un fichier JSON
 // function importerJSON(event) {

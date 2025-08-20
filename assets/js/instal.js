@@ -2,7 +2,7 @@
 // Vérifier si le navigateur supporte les Service Workers
 if ("serviceWorker" in navigator) {
   // Enregistrer le Service Worker
-  navigator.serviceWorker.register("/sw.js").then(
+  navigator.serviceWorker.register("../sw.js").then(
     function (registration) {
       console.log("Service Worker a bien été enregistrer scope: ", registration.scope);
     },

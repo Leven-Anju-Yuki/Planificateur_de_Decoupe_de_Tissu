@@ -45,9 +45,11 @@
     <body>
         <h1>🧵 Visualiseur de Découpe de Tissu</h1>
         <button class="btn-install ml-2" id="installButton" style="display: none">Installer</button>
+        <label>Nom du tissu : <input id="nom-tissu" type="text" /></label>
         <label>Largeur tissu (cm): <input id="largeur" type="number" /></label>
         <label>Hauteur tissu (cm): <input id="hauteur" type="number" /></label>
-        <button onclick="createTissu()">Créer tissu</button>
+        <button onclick="createTissu()">Créer tissu</button><br>
+        <label><input type="checkbox" id="autoTissu" /> Calculer tissu automatiquement</label>
 
         <hr />
 
@@ -69,7 +71,7 @@
         <button onclick="exporterImage()">📸 Exporter Image</button>
         <button onclick="exporterJSON()">💾 Exporter JSON</button>
         <!-- <input type="file" onchange="importerJSON(event)" /> -->
-        <button onclick="reinitialiserTissu()">🧹 Réinitialiser</button>
+        <!-- <button onclick="reinitialiserTissu()">🧹 Réinitialiser</button> -->
 
         <div id="mobile-controls" style="display: none">
             <div id="upArrow" class="arrow">↑</div>

@@ -1,60 +1,56 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Visualiseur de Découpe de Tissu</title>
-        <!-- Balises Meta SEO -->
-        <meta
-            name="description"
-            content="Visualisez et planifiez la découpe de tissu pour vos projets de couture. Ajoutez des formes, exportez en image ou JSON."
-        />
-        <meta
-            name="keywords"
-            content="visualiseur tissu, découpe tissu, couture, planificateur, formes, export image, export JSON"
-        />
-        <meta name="author" content="Visualiseur de Découpe de Tissu" />
+<head> 
+    <meta charset="UTF-8" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
+    <title>Visualiseur de Découpe de Tissu</title> 
 
-        <!-- Balises Meta Open Graph (OG) pour les réseaux sociaux -->
-        <meta property="og:title" content="Visualiseur de Découpe de Tissu" />
-        <meta
-            property="og:description"
-            content="Planifiez et visualisez la découpe de tissu pour vos projets de couture. Ajoutez des formes, exportez facilement."
-        />
-        <meta property="og:type" content="website" />
-        <meta
-            property="og:url"
-            content="https://leven-anju-yuki.github.io/Planificateur_de_Decoupe_de_Tissu/index.html"
-        />
-        <meta
-            property="og:image"
-            content="https://leven-anju-yuki.github.io/Planificateur_de_Decoupe_de_Tissu/assets/img/favicon.png"
-        />
-        <meta property="og:site_name" content="Visualiseur de Découpe de Tissu" />
+    <!-- META SEO -->
+    <meta name="description" content="Visualisez et planifiez la découpe de tissu pour vos projets de couture. Ajoutez des formes, exportez en image ou JSON." /> 
+    <meta name="keywords" content="visualiseur tissu, découpe tissu, couture, planificateur, formes, export image, export JSON" /> 
+    <meta name="author" content="Visualiseur de Découpe de Tissu" /> 
 
-        <!-- Favicon -->
-        <link id="favicon" rel="icon" href="./assets/img/favicon.png" type="image/png" />
+    <!-- META OPEN GRAPH -->
+    <meta property="og:title" content="Visualiseur de Découpe de Tissu" /> 
+    <meta property="og:description" content="Planifiez et visualisez la découpe de tissu pour vos projets de couture. Ajoutez des formes, exportez facilement." /> 
+    <meta property="og:type" content="website" /> 
+    <meta property="og:url" content="https://leven-anju-yuki.github.io/Planificateur_de_Decoupe_de_Tissu/index.html" /> 
+    <meta property="og:image" content="https://leven-anju-yuki.github.io/Planificateur_de_Decoupe_de_Tissu/assets/img/favicon.png" /> 
+    <meta property="og:site_name" content="Visualiseur de Découpe de Tissu" /> 
 
-        <!-- Manifest -->
-        <link rel="manifest" href="manifest.json" />
+    <link id="favicon" rel="icon" href="./assets/img/favicon.png" type="image/png" /> 
+    <link rel="manifest" href="manifest.json" /> 
 
-        <!-- CSS -->
-        <link rel="stylesheet" href="./assets/css/style.css" />
-        <link rel="stylesheet" href="./assets/css/bootstrap.min.css" />
-    </head>
-    <body>
-        <h1>🧵 Visualiseur de Découpe de Tissu</h1>
-        <button class="btn-install ml-2" id="installButton" style="display: none">Installer</button>
+    <!-- CSS -->
+    <link rel="stylesheet" href="./assets/css/style.css" /> 
+    <link rel="stylesheet" href="./assets/css/bootstrap.min.css" /> 
+</head>
+
+<body>
+    <h1>🧵 Visualiseur de Découpe de Tissu</h1>
+
+    <!-- ======================== -->
+    <!-- 🎛️ CONTROLES PRINCIPAUX -->
+    <!-- ======================== -->
+    <div id="controls" class="controls-row">
         <label>Nom du tissu : <input id="nom-tissu" type="text" /></label>
-        <label>Largeur tissu (cm): <input id="largeur" type="number" /></label>
-        <label>Hauteur tissu (cm): <input id="hauteur" type="number" /></label>
-        <button onclick="createTissu()">Créer tissu</button><br>
-        <label><input type="checkbox" id="autoTissu" /> Calculer tissu automatiquement</label>
 
-        <hr />
+        <label>Largeur tissu (cm): <input id="largeur" type="number" step="0.01" /></label>
+        <label>Longueur tissu (cm): <input id="hauteur" type="number" step="0.01" /></label>
 
-        <label
-            >Forme:
+        <button class="btn btn-primary" id="btnCreateTissu">Créer / Mettre à jour tissu</button>
+
+        <label><input type="checkbox" id="autoTissu" /> Ajuster automatiquement si demandé</label>
+        <button class="btn btn-secondary" id="btnReset">🧹 Réinitialiser</button>
+    </div>
+
+    <hr>
+
+    <!-- ======================== -->
+    <!-- 🎨 CONTROLES FORMES -->
+    <!-- ======================== -->
+    <div id="shape-controls" class="controls-row">
+        <label>Forme:
             <select id="forme">
                 <option value="rectangle">Rectangle</option>
                 <option value="carre">Carré</option>
@@ -62,37 +58,73 @@
                 <option value="triangle">Triangle</option>
             </select>
         </label>
-        <label>Largeur (cm): <input id="formLargeur" type="number" /></label>
-        <label>Hauteur (cm): <input id="formHauteur" type="number" /></label>
+        <label>Largeur (cm): <input id="formLargeur" type="number" step="0.1" /></label>
+        <label>Hauteur (cm): <input id="formHauteur" type="number" step="0.1" /></label>
         <label>Nom: <input id="formNom" type="text" /></label>
-        <button onclick="ajouterForme()">Ajouter Forme</button>
-        <div id="tissu" data-initialized="false"></div>
+        <button class="btn btn-success" id="btnAddForme">Ajouter Forme</button>
+    </div>
 
-        <button onclick="exporterImage()">📸 Exporter Image</button>
-        <button onclick="exporterJSON()">💾 Exporter JSON</button>
-        <!-- <input type="file" onchange="importerJSON(event)" /> -->
-        <!-- <button onclick="reinitialiserTissu()">🧹 Réinitialiser</button> -->
-
-        <div id="mobile-controls" style="display: none">
-            <div id="upArrow" class="arrow">↑</div>
+    <!-- ======================== -->
+    <!-- 🌸 DEUX COLONNES -->
+    <!-- ======================== -->
+    <div id="layout">
+        
+        <!-- 🌸 COLONNE GAUCHE — TISSU -->
+        <div id="col-tissu">
+            <div id="tissu-wrapper">
+                <div id="width-lock" title="Verrouiller / déverrouiller la largeur">🔓</div>
+                <div id="tissu" data-initialized="false"></div>
+            </div>
+        <div id="mobile-controls" class="d-md-none">
+            <button id="mob-up">⬆️</button>
             <div>
-                <div id="leftArrow" class="arrow">←</div>
-                <div id="downArrow" class="arrow">↓</div>
-                <div id="rightArrow" class="arrow">→</div>
+                <button id="mob-left">⬅️</button>
+                <button id="mob-right">➡️</button>
+            </div>2
+            <button id="mob-down">⬇️</button>
+        </div>
+
+            <!-- EXPORT -->
+            <div class="controls-row export-zone">
+                <button class="btn btn-info" id="btnExportImg">📸 Exporter Image</button>
+                <button class="btn btn-info" id="btnExportJSON">💾 Exporter JSON</button>
+                <input id="import-json-file" type="file" accept="application/json" />
             </div>
         </div>
-        <div id="form-list">
+
+        <!-- 🌸 COLONNE DROITE — LISTES -->
+        <div id="col-listes">
             <h2>📋 Liste des Formes</h2>
-            <ul id="liste-formes">
-                <!-- Les formes seront ajoutées ici dynamiquement avec leur nom, largeur et hauteur -->
-            </ul>
-            <p id="tissu-perdu">
-                <!-- Affichage du tissu perdu ici -->
-            </p>
+            <ul id="liste-formes"></ul>
+
+            <h3>🔶 Morceaux de tissu inutilisé</h3>
+            <ul id="liste-pertes"></ul>
+
+            <p id="tissu-perdu">Tissu inutilisé : -</p>
         </div>
 
-        <script src="assets/js/script.js"></script>
-        <script src="assets/js/instal.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    </body>
+    </div>
+
+    <!-- ======================== -->
+    <!-- ⚠️ POPUP AJUSTEMENT TISSU -->
+    <!-- ======================== -->
+    <div id="tissu-popup" class="hidden">
+        <div class="popup-inner">
+            <p id="popup-text">⚠️ Une ou plusieurs formes dépassent le tissu.</p>
+            <div class="popup-actions">
+                <button id="popup-width" class="btn btn-primary">Agrandir largeur</button>
+                <button id="popup-height" class="btn btn-primary">Agrandir longueur</button>
+                <button id="popup-both" class="btn btn-warning">Agrandir largeur + longueur</button>
+                <button id="popup-cancel" class="btn btn-secondary">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Script principal -->
+    <script src="./assets/js/script.js"></script>
+
+</body>
 </html>
